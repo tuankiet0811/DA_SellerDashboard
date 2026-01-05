@@ -1,0 +1,81 @@
+@model SellerDashboard.Models.Product
+
+<div class="bg-white dark:bg-[#1a2c23] rounded-lg shadow-sm border border-[#e7f3ec] dark:border-[#2a4034] overflow-hidden max-w-2xl mx-auto">
+    <div class="p-6 border-b border-[#e7f3ec] dark:border-[#2a4034] flex justify-between items-center">
+        <h2 class="text-xl font-bold text-text-main dark:text-white">Thêm sản phẩm</h2>
+        <button onclick="loadProductList()" class="text-text-muted hover:text-text-main dark:text-gray-400 dark:hover:text-white transition-colors">
+            <span class="material-symbols-outlined">close</span>
+        </button>
+    </div>
+    <div class="p-6">
+        <form id="createProductForm" asp-action="CreateProduct" onsubmit="submitCreateProduct(event)" enctype="multipart/form-data">
+            <div asp-validation-summary="ModelOnly" class="text-red-500 text-sm mb-4"></div>
+            
+            <div class="mb-4">
+                <label asp-for="Name" class="block text-sm font-medium text-text-main dark:text-white mb-1"></label>
+                <input asp-for="Name" class="w-full rounded-lg border-gray-300 dark:border-[#2a4034] bg-white dark:bg-[#102218] text-text-main dark:text-white focus:border-primary focus:ring-primary shadow-sm" />
+                <span asp-validation-for="Name" class="text-red-500 text-xs"></span>
+            </div>
+
+            <div class="mb-4">
+                <label asp-for="Description" class="block text-sm font-medium text-text-main dark:text-white mb-1"></label>
+                <textarea asp-for="Description" rows="3" class="w-full rounded-lg border-gray-300 dark:border-[#2a4034] bg-white dark:bg-[#102218] text-text-main dark:text-white focus:border-primary focus:ring-primary shadow-sm"></textarea>
+                <span asp-validation-for="Description" class="text-red-500 text-xs"></span>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4 mb-4">
+                <div>
+                    <label asp-for="Category" class="block text-sm font-medium text-text-main dark:text-white mb-1"></label>
+                    <input asp-for="Category" class="w-full rounded-lg border-gray-300 dark:border-[#2a4034] bg-white dark:bg-[#102218] text-text-main dark:text-white focus:border-primary focus:ring-primary shadow-sm" />
+                    <span asp-validation-for="Category" class="text-red-500 text-xs"></span>
+                </div>
+                <div>
+                    <label asp-for="Brand" class="block text-sm font-medium text-text-main dark:text-white mb-1"></label>
+                    <input asp-for="Brand" class="w-full rounded-lg border-gray-300 dark:border-[#2a4034] bg-white dark:bg-[#102218] text-text-main dark:text-white focus:border-primary focus:ring-primary shadow-sm" />
+                    <span asp-validation-for="Brand" class="text-red-500 text-xs"></span>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4 mb-4">
+                <div>
+                    <label asp-for="Price" class="block text-sm font-medium text-text-main dark:text-white mb-1"></label>
+                    <input asp-for="Price" type="number" step="0.01" class="w-full rounded-lg border-gray-300 dark:border-[#2a4034] bg-white dark:bg-[#102218] text-text-main dark:text-white focus:border-primary focus:ring-primary shadow-sm" />
+                    <span asp-validation-for="Price" class="text-red-500 text-xs"></span>
+                </div>
+                <div>
+                    <label asp-for="StockQuantity" class="block text-sm font-medium text-text-main dark:text-white mb-1"></label>
+                    <input asp-for="StockQuantity" type="number" class="w-full rounded-lg border-gray-300 dark:border-[#2a4034] bg-white dark:bg-[#102218] text-text-main dark:text-white focus:border-primary focus:ring-primary shadow-sm" />
+                    <span asp-validation-for="StockQuantity" class="text-red-500 text-xs"></span>
+                </div>
+            </div>
+
+             <div class="mb-6">
+                <label for="imageFile" class="block text-sm font-medium text-text-main dark:text-white mb-1">Ảnh sản phẩm</label>
+                <input type="file" id="imageFile" name="imageFile" accept="image/*" class="w-full rounded-lg border-gray-300 dark:border-[#2a4034] bg-white dark:bg-[#102218] text-text-main dark:text-white focus:border-primary focus:ring-primary shadow-sm" onchange="previewImage(this)" />
+                <div class="mt-2 hidden" id="imagePreviewContainer">
+                     <img id="imagePreview" src="#" alt="Preview" class="h-32 w-auto object-cover rounded-md border border-gray-200 dark:border-gray-700" />
+                </div>
+            </div>
+
+            <script>
+                function previewImage(input) {
+                    if (input.files && input.files[0]) {
+                        var reader = new FileReader();
+                        reader.onload = function(e) {
+                            var preview = document.getElementById('imagePreview');
+                            var container = document.getElementById('imagePreviewContainer');
+                            preview.src = e.target.result;
+                            container.classList.remove('hidden');
+                        }
+                        reader.readAsDataURL(input.files[0]);
+                    }
+                }
+            </script>
+
+            <div class="flex justify-end gap-3">
+                <button type="button" onclick="loadProductList()" class="px-4 py-2 rounded-lg border border-gray-300 dark:border-[#2a4034] text-text-muted dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-[#2a4034] transition-colors font-medium">Hủy</button>
+                <button type="submit" class="px-4 py-2 rounded-lg bg-primary hover:bg-primary-dark text-white transition-colors font-medium shadow-sm">Lưu sản phẩm</button>
+            </div>
+        </form>
+    </div>
+</div>

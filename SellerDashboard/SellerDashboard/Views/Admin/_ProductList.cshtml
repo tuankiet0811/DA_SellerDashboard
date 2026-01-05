@@ -1,0 +1,57 @@
+@model IEnumerable<SellerDashboard.Models.Product>
+
+<div class="bg-white dark:bg-[#1a2c23] rounded-lg shadow-sm border border-[#e7f3ec] dark:border-[#2a4034] overflow-hidden">
+    <div class="p-6 border-b border-[#e7f3ec] dark:border-[#2a4034] flex justify-between items-center">
+        <h2 class="text-xl font-bold text-text-main dark:text-white">Sản phẩm</h2>
+        <button onclick="loadCreateProduct()" class="flex items-center gap-2 rounded-lg bg-primary hover:bg-primary-dark text-white px-4 py-2 text-sm font-medium transition-colors">
+            <span class="material-symbols-outlined text-[20px]">add</span>
+            Thêm sản phẩm
+        </button>
+    </div>
+    <div class="overflow-x-auto">
+        <table class="w-full text-left text-sm text-text-muted dark:text-gray-400">
+            <thead class="bg-[#f6f8f7] dark:bg-[#102218] text-xs uppercase text-text-main dark:text-white font-semibold">
+                <tr>
+                    <th scope="col" class="px-6 py-3">Tên</th>
+                    <th scope="col" class="px-6 py-3">Giá</th>
+                    <th scope="col" class="px-6 py-3">Tồn kho</th>
+                    <th scope="col" class="px-6 py-3">Thao tác</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-[#e7f3ec] dark:divide-[#2a4034]">
+                @foreach (var item in Model)
+                {
+                    <tr class="hover:bg-[#f6f8f7] dark:hover:bg-[#102218] transition-colors">
+                        <td class="px-6 py-4 font-medium text-text-main dark:text-white">
+                            <div class="flex items-center gap-3">
+                                @if (!string.IsNullOrEmpty(item.ImageUrl))
+                                {
+                                    <img src="@item.ImageUrl" alt="@item.Name" class="w-10 h-10 object-cover rounded-md border border-gray-200 dark:border-gray-700" />
+                                }
+                                else
+                                {
+                                    <div class="w-10 h-10 bg-gray-100 dark:bg-gray-800 rounded-md flex items-center justify-center border border-gray-200 dark:border-gray-700">
+                                         <span class="material-symbols-outlined text-gray-400 text-sm">image</span>
+                                    </div>
+                                }
+                                <span>@item.Name</span>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4">@string.Format(System.Globalization.CultureInfo.GetCultureInfo("vi-VN"), "{0:C0}", item.Price)</td>
+                        <td class="px-6 py-4">@item.StockQuantity</td>
+                        <td class="px-6 py-4">
+                            <div class="flex items-center gap-2">
+                                <button onclick="loadEditProduct(@item.Id)" class="p-1 hover:text-primary transition-colors" title="Sửa">
+                                    <span class="material-symbols-outlined text-[20px]">edit</span>
+                                </button>
+                                <button onclick="deleteProduct(@item.Id)" class="p-1 hover:text-red-500 transition-colors" title="Xóa">
+                                    <span class="material-symbols-outlined text-[20px]">delete</span>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

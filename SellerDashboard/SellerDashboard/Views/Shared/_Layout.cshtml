@@ -1,0 +1,267 @@
+@using Microsoft.AspNetCore.Identity
+@inject SignInManager<IdentityUser> SignInManager
+@inject UserManager<IdentityUser> UserManager
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>@ViewData["Title"] - ShopEase</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet" />
+    <!-- Material Symbols -->
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet" />
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <!-- Theme Configuration -->
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#13ec6d",
+                        "background-light": "#f6f8f7",
+                        "background-dark": "#102218",
+                        "text-main": "#0d1b13",
+                        "text-sub": "#4c9a6c",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+    <style>
+        /* Custom range slider styling */
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 16px;
+            width: 16px;
+            border-radius: 50%;
+            background: #13ec6d;
+            cursor: pointer;
+            margin-top: -6px;
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 4px;
+            cursor: pointer;
+            background: #e5e7eb;
+            border-radius: 2px;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-text-main dark:text-white font-display overflow-x-hidden min-h-screen flex flex-col">
+    <!-- Header -->
+    <header class="sticky top-0 z-50 bg-white dark:bg-[#1a2e22] border-b border-[#e7f3ec] dark:border-[#2a4032] px-6 py-4 shadow-sm">
+        <div class="max-w-7xl mx-auto flex items-center justify-between gap-8">
+            <!-- Logo -->
+            <div class="flex items-center gap-3 shrink-0">
+                <div class="size-8 text-primary">
+                    <span class="material-symbols-outlined text-4xl">eco</span>
+                </div>
+                <h1 class="text-xl font-bold tracking-tight text-text-main dark:text-white">ShopEase</h1>
+            </div>
+            <!-- Search Bar (Prominent) -->
+            <form action="@Url.Action("Index", "Home")" method="get" class="hidden md:flex flex-1 max-w-2xl relative group">
+                <div class="flex w-full items-center rounded-lg bg-[#f0fdf4] dark:bg-[#23352a] border border-transparent focus-within:border-primary/50 transition-all">
+                    <div class="pl-4 text-text-sub">
+                        <button type="submit" class="material-symbols-outlined bg-transparent border-none cursor-pointer">search</button>
+                    </div>
+                    <input id="searchInput" name="searchTerm" value="@Context.Request.Query["searchTerm"]" class="w-full bg-transparent border-none focus:ring-0 text-text-main dark:text-white placeholder:text-text-sub px-3 py-2.5 text-sm font-medium" placeholder="Search..." autocomplete="off" />
+                    <!-- Search Suggestions Dropdown -->
+                    <div id="searchSuggestions" class="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-[#1a2e22] rounded-lg shadow-xl border border-gray-100 dark:border-[#2a4032] hidden p-2 z-50">
+                        <!-- Dynamic content will be injected here -->
+                    </div>
+                </div>
+            </form>
+            <!-- Nav Links & Actions -->
+            <div class="flex items-center gap-6 shrink-0">
+                <nav class="hidden lg:flex items-center gap-6">
+                    <a class="text-sm font-medium transition-colors @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Home" && ViewContext.RouteData.Values["Action"]?.ToString() == "Index" ? "text-primary" : "hover:text-primary")" asp-controller="Home" asp-action="Index">Home</a>
+                    
+                    @if (SignInManager.IsSignedIn(User))
+                    {
+                        <a class="text-sm font-medium transition-colors @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Order" ? "text-primary" : "hover:text-primary")" asp-controller="Order" asp-action="Index">My Orders</a>
+                    }
+                </nav>
+                <div class="flex items-center gap-3">
+                    <a asp-controller="ShoppingCart" asp-action="Cart" class="relative p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-[#23352a] transition-colors text-text-main dark:text-white">
+                        <span class="material-symbols-outlined">shopping_cart</span>
+                        <span id="cart-badge" class="absolute -top-1 -right-1 bg-primary text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center hidden">0</span>
+                    </a>
+                    @if (SignInManager.IsSignedIn(User))
+                    {
+                        <form asp-controller="Account" asp-action="Logout" method="post" class="inline">
+                            <button type="submit" class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-[#23352a] transition-colors text-text-main dark:text-white" title="Logout @User.Identity?.Name">
+                                <span class="material-symbols-outlined">logout</span>
+                            </button>
+                        </form>
+                    }
+                    else
+                    {
+                        <a asp-controller="Account" asp-action="Login" class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-[#23352a] transition-colors text-text-main dark:text-white" title="Login">
+                            <span class="material-symbols-outlined">account_circle</span>
+                        </a>
+                    }
+                </div>
+            </div>
+        </div>
+    </header>
+    
+    @RenderBody()
+
+    @await RenderSectionAsync("Scripts", required: false)
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            updateCartCount();
+        });
+
+        function updateCartCount() {
+            fetch('/ShoppingCart/GetCartCount')
+                .then(response => response.json())
+                .then(data => {
+                    const badge = document.getElementById('cart-badge');
+                    if (data.count > 0) {
+                        badge.textContent = data.count;
+                        badge.classList.remove('hidden');
+                    } else {
+                        badge.classList.add('hidden');
+                    }
+                })
+                .catch(error => console.error('Error fetching cart count:', error));
+        }
+
+        function addToCart(productId, quantity = 1) {
+            const formData = new FormData();
+            formData.append('productId', productId);
+            formData.append('quantity', quantity);
+
+            fetch('/ShoppingCart/AddToCart', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    updateCartCount();
+                    // Optional: Show a toast notification
+                    // alert(data.message); 
+                    // Better: Create a toast element
+                    showToast(data.message);
+                } else {
+                    alert('Failed to add to cart: ' + (data.message || 'Unknown error'));
+                }
+            })
+            .catch(error => console.error('Error adding to cart:', error));
+        }
+
+        function showToast(message) {
+            const toast = document.createElement('div');
+            toast.className = 'fixed bottom-4 right-4 bg-gray-900 text-white px-6 py-3 rounded-lg shadow-lg transform transition-all duration-300 translate-y-full opacity-0 z-50 flex items-center gap-2';
+            toast.innerHTML = `<span class="material-symbols-outlined text-primary">check_circle</span>${message}`;
+            document.body.appendChild(toast);
+            
+            // Trigger animation
+            requestAnimationFrame(() => {
+                toast.classList.remove('translate-y-full', 'opacity-0');
+            });
+
+            setTimeout(() => {
+                toast.classList.add('translate-y-full', 'opacity-0');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // Search Suggestions Logic
+        const searchInput = document.getElementById('searchInput');
+        const searchSuggestions = document.getElementById('searchSuggestions');
+        let debounceTimer;
+
+        if (searchInput) {
+            searchInput.addEventListener('input', function() {
+                clearTimeout(debounceTimer);
+                const term = this.value.trim();
+
+                if (term.length < 2) {
+                    searchSuggestions.classList.add('hidden');
+                    searchSuggestions.innerHTML = '';
+                    return;
+                }
+
+                debounceTimer = setTimeout(() => {
+                    fetch(`/Home/GetSearchSuggestions?term=${encodeURIComponent(term)}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.length > 0) {
+                                searchSuggestions.innerHTML = '';
+                                data.forEach(product => {
+                                    const item = document.createElement('a');
+                                    item.href = `/Home/Details/${product.id}`;
+                                    item.className = 'flex items-center gap-3 px-3 py-2 hover:bg-background-light dark:hover:bg-[#23352a] rounded-md text-sm text-text-main dark:text-gray-200 block';
+                                    
+                                    const img = document.createElement('img');
+                                    img.src = product.imageUrl || 'https://placehold.co/40'; // Fallback image
+                                    img.className = 'w-10 h-10 object-cover rounded shrink-0';
+                                    img.alt = product.name;
+                                    
+                                    const info = document.createElement('div');
+                                    info.className = 'flex flex-col overflow-hidden ml-3';
+                                    
+                                    const name = document.createElement('span');
+                                    name.className = 'font-medium truncate block';
+                                    name.textContent = product.name;
+                                    
+                                    const price = document.createElement('span');
+                                    price.className = 'text-xs text-primary font-semibold';
+                                    price.textContent = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(product.price);
+
+                                    info.appendChild(name);
+                                    info.appendChild(price);
+                                    
+                                    item.appendChild(img);
+                                    item.appendChild(info);
+                                    
+                                    searchSuggestions.appendChild(item);
+                                });
+                                searchSuggestions.classList.remove('hidden');
+                            } else {
+                                searchSuggestions.classList.add('hidden');
+                            }
+                        })
+                        .catch(error => console.error('Error fetching suggestions:', error));
+                }, 300);
+            });
+
+            // Hide suggestions when clicking outside
+            document.addEventListener('click', function(e) {
+                if (searchSuggestions && !searchInput.contains(e.target) && !searchSuggestions.contains(e.target)) {
+                    searchSuggestions.classList.add('hidden');
+                }
+            });
+            
+            // Show suggestions again if input has focus and value
+            searchInput.addEventListener('focus', function() {
+                 if (this.value.trim().length >= 2 && searchSuggestions.children.length > 0) {
+                     searchSuggestions.classList.remove('hidden');
+                 }
+            });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,308 @@
+@model SellerDashboard.Models.CheckoutViewModel
+
+<!DOCTYPE html>
+
+<html class="light" lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>One-Page Checkout</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet" />
+    <!-- Material Symbols -->
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet" />
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <!-- Tailwind Config -->
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#13ec6d",
+                        "background-light": "#f6f8f7",
+                        "background-dark": "#102218",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+    <style>
+        /* Custom scrollbar for better aesthetics */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+
+            ::-webkit-scrollbar-thumb:hover {
+                background: #94a3b8;
+            }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-[#0d1b13] dark:text-gray-100 antialiased min-h-screen flex flex-col">
+    @* <!-- Header -->
+    <header class="sticky top-0 z-50 flex items-center justify-between whitespace-nowrap border-b border-solid border-[#e7f3ec] dark:border-gray-800 bg-background-light/95 dark:bg-background-dark/95 backdrop-blur-sm px-6 lg:px-40 py-4">
+        <div class="flex items-center gap-4 text-[#0d1b13] dark:text-white">
+            <a asp-controller="Home" asp-action="Index" class="size-8 text-primary">
+                <svg class="h-full w-full" fill="none" viewbox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+                    <path clip-rule="evenodd" d="M39.475 21.6262C40.358 21.4363 40.6863 21.5589 40.7581 21.5934C40.7876 21.655 40.8547 21.857 40.8082 22.3336C40.7408 23.0255 40.4502 24.0046 39.8572 25.2301C38.6799 27.6631 36.5085 30.6631 33.5858 33.5858C30.6631 36.5085 27.6632 38.6799 25.2301 39.8572C24.0046 40.4502 23.0255 40.7407 22.3336 40.8082C21.8571 40.8547 21.6551 40.7875 21.5934 40.7581C21.5589 40.6863 21.4363 40.358 21.6262 39.475C21.8562 38.4054 22.4689 36.9657 23.5038 35.2817C24.7575 33.2417 26.5497 30.9744 28.7621 28.762C30.9744 26.5497 33.2417 24.7574 35.2817 23.5037C36.9657 22.4689 38.4054 21.8562 39.475 21.6262ZM4.41189 29.2403L18.7597 43.5881C19.8813 44.7097 21.4027 44.9179 22.7217 44.7893C24.0585 44.659 25.5148 44.1631 26.9723 43.4579C29.9052 42.0387 33.2618 39.5667 36.4142 36.4142C39.5667 33.2618 42.0387 29.9052 43.4579 26.9723C44.1631 25.5148 44.659 24.0585 44.7893 22.7217C44.9179 21.4027 44.7097 19.8813 43.5881 18.7597L29.2403 4.41187C27.8527 3.02428 25.8765 3.02573 24.2861 3.36776C22.6081 3.72863 20.7334 4.58419 18.8396 5.74801C16.4978 7.18716 13.9881 9.18353 11.5858 11.5858C9.18354 13.988 7.18717 16.4978 5.74802 18.8396C4.58421 20.7334 3.72865 22.6081 3.36778 24.2861C3.02574 25.8765 3.02429 27.8527 4.41189 29.2403Z" fill="currentColor" fill-rule="evenodd"></path>
+                </svg>
+            </a>
+            <h2 class="text-lg font-bold leading-tight tracking-[-0.015em]">Lumina Store</h2>
+        </div>
+        <div class="flex items-center justify-center gap-2 text-sm font-bold text-[#0d1b13] dark:text-white">
+            <span class="material-symbols-outlined text-[#4c9a6c] dark:text-primary" style="font-size: 20px;">lock</span>
+            Secure Checkout
+        </div>
+    </header> *@
+    <!-- Main Content -->
+    <main class="flex-grow w-full max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-40 py-8 lg:py-12">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16">
+            <!-- Left Column: Forms -->
+            <form asp-controller="ShoppingCart" asp-action="ProcessCheckout" method="post" class="lg:col-span-7 flex flex-col gap-10">
+                <!-- Validation Summary -->
+                <div asp-validation-summary="All" class="text-red-500 text-sm"></div>
+
+                <!-- Page Heading -->
+                <div>
+                    <h1 class="text-3xl font-bold tracking-tight text-[#0d1b13] dark:text-white">Checkout</h1>
+                    <div class="flex items-center gap-2 mt-2 text-sm">
+                        <a asp-action="Cart" class="text-[#4c9a6c] hover:underline">Cart</a>
+                        <span class="material-symbols-outlined text-[#4c9a6c]" style="font-size: 16px;">chevron_right</span>
+                        <span class="font-medium text-[#0d1b13] dark:text-white">Information</span>
+                    </div>
+                </div>
+
+                <!-- Contact Information -->
+                <section>
+                    <h3 class="text-lg font-bold text-[#0d1b13] dark:text-white mb-4">Contact Information</h3>
+                    <div class="space-y-4">
+                        <label class="block">
+                            <span class="text-sm font-medium text-[#0d1b13] dark:text-gray-200">Họ tên</span>
+                            <input asp-for="FullName" class="mt-1 block w-full rounded-lg border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-[#0d1b13] dark:text-white focus:border-primary focus:ring-primary py-3 px-4 shadow-sm" placeholder="Nguyen Van A" />
+                            <span asp-validation-for="FullName" class="text-red-500 text-xs mt-1"></span>
+                        </label>
+                        <label class="block">
+                            <span class="text-sm font-medium text-[#0d1b13] dark:text-gray-200">Email</span>
+                            <input asp-for="Email" class="mt-1 block w-full rounded-lg border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-[#0d1b13] dark:text-white focus:border-primary focus:ring-primary py-3 px-4 shadow-sm" placeholder="you@example.com" />
+                            <span asp-validation-for="Email" class="text-red-500 text-xs mt-1"></span>
+                        </label>
+                        <label class="block">
+                            <span class="text-sm font-medium text-[#0d1b13] dark:text-gray-200">Số điện thoại</span>
+                            <input asp-for="Phone" class="mt-1 block w-full rounded-lg border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-[#0d1b13] dark:text-white focus:border-primary focus:ring-primary py-3 px-4 shadow-sm" placeholder="0912345678" />
+                            <span asp-validation-for="Phone" class="text-red-500 text-xs mt-1"></span>
+                        </label>
+                    </div>
+                </section>
+
+                <!-- Shipping Address -->
+                <section>
+                    <h3 class="text-lg font-bold text-[#0d1b13] dark:text-white mb-4">Shipping Address</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="block">
+                            <label class="text-sm font-medium text-[#0d1b13] dark:text-gray-200">Tỉnh/Thành Phố</label>
+                            <select id="province-select" class="mt-1 block w-full rounded-lg border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-[#0d1b13] dark:text-white focus:border-primary focus:ring-primary py-3 px-4 shadow-sm">
+                                <option value="">Select Province</option>
+                            </select>
+                            <input type="hidden" asp-for="Province" id="province-input" />
+                            <span asp-validation-for="Province" class="text-red-500 text-xs mt-1"></span>
+                        </div>
+                        <div class="block">
+                            <label class="text-sm font-medium text-[#0d1b13] dark:text-gray-200">Quận/Huyện</label>
+                            <select id="district-select" class="mt-1 block w-full rounded-lg border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-[#0d1b13] dark:text-white focus:border-primary focus:ring-primary py-3 px-4 shadow-sm">
+                                <option value="">Select District</option>
+                            </select>
+                            <input type="hidden" asp-for="District" id="district-input" />
+                            <span asp-validation-for="District" class="text-red-500 text-xs mt-1"></span>
+                        </div>
+                        <div class="block">
+                            <label class="text-sm font-medium text-[#0d1b13] dark:text-gray-200">Phường</label>
+                            <select id="ward-select" class="mt-1 block w-full rounded-lg border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-[#0d1b13] dark:text-white focus:border-primary focus:ring-primary py-3 px-4 shadow-sm">
+                                <option value="">Select Ward</option>
+                            </select>
+                            <input type="hidden" asp-for="Ward" id="ward-input" />
+                            <span asp-validation-for="Ward" class="text-red-500 text-xs mt-1"></span>
+                        </div>
+
+                        <label class="block md:col-span-3">
+                            <span class="text-sm font-medium text-[#0d1b13] dark:text-gray-200">Địa chỉ cụ thể</span>
+                            <input asp-for="SpecificAddress" class="mt-1 block w-full rounded-lg border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-[#0d1b13] dark:text-white focus:border-primary focus:ring-primary py-3 px-4 shadow-sm" placeholder="House number, street name" />
+                            <span asp-validation-for="SpecificAddress" class="text-red-500 text-xs mt-1"></span>
+                        </label>
+                    </div>
+                </section>
+
+                <div class="pt-4">
+                    <button type="submit" class="w-full bg-primary hover:bg-green-400 text-background-dark font-bold text-lg py-4 px-6 rounded-lg transition duration-200 shadow-sm hover:shadow-md flex items-center justify-center gap-2">
+                        <span>Thanh toán @string.Format(System.Globalization.CultureInfo.GetCultureInfo("vi-VN"), "{0:C0}", Model.CartTotal)</span>
+                        <span class="material-symbols-outlined">arrow_forward</span>
+                    </button>
+                    <p class="text-center text-xs text-gray-500 mt-4 flex items-center justify-center gap-1">
+                        <span class="material-symbols-outlined text-gray-400" style="font-size: 14px;">lock</span>
+                        Secure transaction
+                        Payments are secure and encrypted
+                    </p>
+                </div>
+            </form>
+                        
+                   
+            
+
+            <!-- Right Column: Sticky Order Summary -->
+            <div class="lg:col-span-5">
+                <div class="sticky top-28 space-y-6 rounded-xl border border-[#e7f3ec] dark:border-gray-800 bg-[#f8fcfa] dark:bg-[#15281e] p-6 lg:p-8 shadow-sm">
+                    <h2 class="text-xl font-bold text-[#0d1b13] dark:text-white">Order Summary</h2>
+                    <!-- Items List -->
+                    <div class="space-y-4 max-h-[300px] overflow-y-auto pr-2">
+                        @foreach (var item in Model.CartItems)
+                        {
+                            <!-- Item -->
+                            <div class="flex gap-4">
+                                <div class="relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700 bg-white">
+                                    <img class="h-full w-full object-cover object-center" src="@(string.IsNullOrEmpty(item.ImageUrl) ? "https://via.placeholder.com/150" : item.ImageUrl)" alt="@item.ProductName" />
+                                    <span class="absolute -right-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full bg-gray-500 text-xs font-medium text-white shadow">@item.Quantity</span>
+                                </div>
+                                <div class="flex flex-1 flex-col justify-center">
+                                    <h3 class="text-sm font-medium text-[#0d1b13] dark:text-white">@item.ProductName</h3>
+                                    <p class="mt-1 text-sm text-gray-500">Standard Size</p>
+                                </div>
+                                <div class="flex flex-col justify-center items-end">
+                                    <p class="text-sm font-medium text-[#0d1b13] dark:text-white">@string.Format(System.Globalization.CultureInfo.GetCultureInfo("vi-VN"), "{0:C0}", item.Total)</p>
+                                </div>
+                            </div>
+                        }
+                    </div>
+
+                    <!-- Totals -->
+                    <div class="space-y-3 border-t border-gray-200 dark:border-gray-700 pt-6">
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-600 dark:text-gray-400">Subtotal</span>
+                            <span class="font-medium text-[#0d1b13] dark:text-white">@string.Format(System.Globalization.CultureInfo.GetCultureInfo("vi-VN"), "{0:C0}", Model.CartTotal)</span>
+                        </div>
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-600 dark:text-gray-400">Shipping</span>
+                            <span class="font-medium text-[#0d1b13] dark:text-white">Free</span>
+                        </div>
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-600 dark:text-gray-400">Estimated taxes</span>
+                            <span class="font-medium text-[#0d1b13] dark:text-white">@string.Format(System.Globalization.CultureInfo.GetCultureInfo("vi-VN"), "{0:C0}", 0)</span>
+                        </div>
+                    </div>
+                    <!-- Total -->
+                    <div class="flex items-center justify-between border-t border-gray-200 dark:border-gray-700 pt-6">
+                        <span class="text-base font-bold text-[#0d1b13] dark:text-white">Total</span>
+                        <div class="flex items-baseline gap-2">
+                            <span class="text-xs text-gray-500">VND</span>
+                            <span class="text-2xl font-bold text-[#0d1b13] dark:text-white">@string.Format(System.Globalization.CultureInfo.GetCultureInfo("vi-VN"), "{0:C0}", Model.CartTotal)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const provinceSelect = document.getElementById('province-select');
+            const districtSelect = document.getElementById('district-select');
+            const wardSelect = document.getElementById('ward-select');
+            
+            const provinceInput = document.getElementById('province-input');
+            const districtInput = document.getElementById('district-input');
+            const wardInput = document.getElementById('ward-input');
+
+            // Load Provinces
+            fetch('https://esgoo.net/api-tinhthanh/1/0.htm')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error === 0) {
+                        data.data.forEach(p => {
+                            const option = document.createElement('option');
+                            option.value = p.id;
+                            option.text = p.full_name;
+                            provinceSelect.add(option);
+                        });
+                    }
+                });
+
+            // On Province Change
+            provinceSelect.addEventListener('change', function() {
+                const provinceId = this.value;
+                const provinceName = this.options[this.selectedIndex].text;
+                provinceInput.value = provinceName; // Set hidden input
+                
+                // Clear District & Ward
+                districtSelect.length = 1; // Keep placeholder
+                wardSelect.length = 1;
+                districtInput.value = "";
+                wardInput.value = "";
+
+                if (provinceId) {
+                    fetch(`https://esgoo.net/api-tinhthanh/2/${provinceId}.htm`)
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.error === 0) {
+                                data.data.forEach(d => {
+                                    const option = document.createElement('option');
+                                    option.value = d.id;
+                                    option.text = d.full_name;
+                                    districtSelect.add(option);
+                                });
+                            }
+                        });
+                }
+            });
+
+            // On District Change
+            districtSelect.addEventListener('change', function() {
+                const districtId = this.value;
+                const districtName = this.options[this.selectedIndex].text;
+                districtInput.value = districtName;
+                
+                wardSelect.length = 1;
+                wardInput.value = "";
+
+                if (districtId) {
+                    fetch(`https://esgoo.net/api-tinhthanh/3/${districtId}.htm`)
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.error === 0) {
+                                data.data.forEach(w => {
+                                    const option = document.createElement('option');
+                                    option.value = w.id;
+                                    option.text = w.full_name;
+                                    wardSelect.add(option);
+                                });
+                            }
+                        });
+                }
+            });
+
+            // On Ward Change
+            wardSelect.addEventListener('change', function() {
+                const wardName = this.options[this.selectedIndex].text;
+                wardInput.value = wardName;
+            });
+        });
+    </script>
+</body>
+</html>

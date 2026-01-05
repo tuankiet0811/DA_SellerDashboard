@@ -1,0 +1,348 @@
+@model SellerDashboard.Models.Product
+
+@{
+    ViewData["Title"] = Model.Name;
+}
+
+<div class="max-w-7xl mx-auto px-6 py-12">
+    <!-- Breadcrumbs -->
+    <nav class="flex mb-8 text-sm text-gray-500 dark:text-gray-400" aria-label="Breadcrumb">
+        <ol class="inline-flex items-center space-x-1 md:space-x-3">
+            <li class="inline-flex items-center">
+                <a asp-action="Index" class="inline-flex items-center hover:text-primary transition-colors">
+                    <span class="material-symbols-outlined mr-2 text-lg">home</span>
+                    Home
+                </a>
+            </li>
+            <li>
+                <div class="flex items-center">
+                    <span class="material-symbols-outlined text-gray-400">chevron_right</span>
+                    <a href="@Url.Action("Index", new { category = Model.Category })" class="ml-1 md:ml-2 hover:text-primary transition-colors">@(Model.Category ?? "Uncategorized")</a>
+                </div>
+            </li>
+            <li aria-current="page">
+                <div class="flex items-center">
+                    <span class="material-symbols-outlined text-gray-400">chevron_right</span>
+                    <span class="ml-1 md:ml-2 font-medium text-gray-900 dark:text-white truncate max-w-[200px]">@Model.Name</span>
+                </div>
+            </li>
+        </ol>
+    </nav>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16">
+        <!-- Product Image Gallery -->
+        <div class="space-y-4">
+            <div class="aspect-square bg-gray-50 dark:bg-[#1a2e22] rounded-2xl border border-gray-100 dark:border-[#2a4032] overflow-hidden relative group">
+                <img src="@(string.IsNullOrEmpty(Model.ImageUrl) ? "https://via.placeholder.com/600" : Model.ImageUrl)" 
+                     alt="@Model.Name" 
+                     class="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500" />
+                
+                @if(DateTime.Now < Model.CreatedAt.AddDays(7)) 
+                {
+                    <div class="absolute top-4 left-4">
+                        <span class="bg-primary text-text-main text-xs font-bold px-3 py-1.5 rounded-full shadow-lg">New Arrival</span>
+                    </div>
+                }
+            </div>
+            <!-- Thumbnails (Placeholder for future implementation) -->
+            <div class="grid grid-cols-4 gap-4">
+                @for(int i = 0; i < 4; i++) {
+                    <div class="aspect-square bg-gray-50 dark:bg-[#1a2e22] rounded-lg border border-gray-100 dark:border-[#2a4032] overflow-hidden cursor-pointer hover:border-primary transition-colors @(i == 0 ? "border-primary ring-2 ring-primary/20" : "")">
+                        <img src="@(string.IsNullOrEmpty(Model.ImageUrl) ? "https://via.placeholder.com/150" : Model.ImageUrl)" class="w-full h-full object-cover" />
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- Product Info -->
+        <div class="flex flex-col">
+            <div class="mb-2 flex items-center gap-2">
+                <span class="text-xs font-bold text-primary bg-primary/10 px-2 py-1 rounded uppercase tracking-wider">@(Model.Brand ?? "Generic")</span>
+                <div class="flex items-center gap-1 text-xs font-medium text-gray-500 dark:text-gray-400">
+                    <span class="material-symbols-outlined text-yellow-400 text-[18px] fill-current" style="font-variation-settings: 'FILL' 1">star</span>
+                    <span>5.0 (128 reviews)</span>
+                </div>
+            </div>
+
+            <h1 class="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">@Model.Name</h1>
+
+            <div class="flex items-baseline gap-4 mb-6">
+                @if (Model.DiscountedPrice < Model.Price)
+                {
+                    <span class="text-3xl font-bold text-red-600">@string.Format(System.Globalization.CultureInfo.GetCultureInfo("vi-VN"), "{0:C0}", Model.DiscountedPrice)</span>
+                    <span class="text-lg text-gray-400 line-through">@string.Format(System.Globalization.CultureInfo.GetCultureInfo("vi-VN"), "{0:C0}", Model.Price)</span>
+                    <span class="bg-red-100 text-red-600 text-xs font-bold px-2 py-1 rounded">-@Model.Promotion?.DiscountPercent%</span>
+                }
+                else
+                {
+                    <span class="text-3xl font-bold text-primary">@string.Format(System.Globalization.CultureInfo.GetCultureInfo("vi-VN"), "{0:C0}", Model.Price)</span>
+                }
+            </div>
+
+            <div class="prose prose-sm dark:prose-invert text-gray-600 dark:text-gray-300 mb-8 max-w-none">
+                <p>@Model.Description</p>
+            </div>
+
+            <!-- Stock Status -->
+            <div class="flex items-center gap-2 mb-8 text-sm">
+                @if(Model.StockQuantity > 0) {
+                    <span class="material-symbols-outlined text-green-500">check_circle</span>
+                    <span class="text-green-600 font-medium">In Stock (@Model.StockQuantity units available)</span>
+                } else {
+                    <span class="material-symbols-outlined text-red-500">cancel</span>
+                    <span class="text-red-600 font-medium">Out of Stock</span>
+                }
+            </div>
+
+            <div class="border-t border-gray-100 dark:border-[#2a4032] pt-8 mt-auto">
+                <div class="flex flex-col sm:flex-row gap-4">
+                    <div class="flex items-center border border-gray-200 dark:border-[#2a4032] rounded-lg">
+                        <button class="px-4 py-3 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-[#2a4032] transition-colors" onclick="decrementQty()">-</button>
+                        <input type="number" id="qty" value="1" min="1" max="@Model.StockQuantity" class="w-16 text-center border-none bg-transparent focus:ring-0 text-gray-900 dark:text-white font-medium" />
+                        <button class="px-4 py-3 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-[#2a4032] transition-colors" onclick="incrementQty()">+</button>
+                    </div>
+                    <button onclick="addToCart(@Model.Id, document.getElementById('qty').value)" class="flex-1 bg-primary hover:bg-primary-dark text-white font-bold py-3 px-8 rounded-lg shadow-lg shadow-primary/30 transition-all active:scale-95 flex items-center justify-center gap-2">
+                        <span class="material-symbols-outlined">shopping_cart</span>
+                        Add to Cart
+                    </button>
+                    <button class="p-3 border border-gray-200 dark:border-[#2a4032] rounded-lg text-gray-400 hover:text-red-500 hover:border-red-200 hover:bg-red-50 dark:hover:bg-[#2a4032] transition-colors">
+                        <span class="material-symbols-outlined">favorite</span>
+                    </button>
+                </div>
+                
+                <!-- Features / Delivery Info -->
+                <div class="grid grid-cols-2 gap-4 mt-8">
+                    <div class="flex items-start gap-3 p-4 rounded-lg bg-gray-50 dark:bg-[#1a2e22]">
+                        <span class="material-symbols-outlined text-primary">local_shipping</span>
+                        <div>
+                            <h4 class="font-bold text-sm text-gray-900 dark:text-white">Free Shipping</h4>
+                            <p class="text-xs text-gray-500">On orders over $100</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-3 p-4 rounded-lg bg-gray-50 dark:bg-[#1a2e22]">
+                        <span class="material-symbols-outlined text-primary">verified_user</span>
+                        <div>
+                            <h4 class="font-bold text-sm text-gray-900 dark:text-white">2 Year Warranty</h4>
+                            <p class="text-xs text-gray-500">Full coverage</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-12 grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div class="lg:col-span-2 rounded-2xl border border-gray-100 dark:border-[#2a4032] p-6 bg-white dark:bg-[#0f1f16]">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-xl font-bold text-gray-900 dark:text-white">Đánh giá sản phẩm</h2>
+                <div class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
+                    @{ var reviewCount = Model.Reviews?.Count ?? 0; var avg = reviewCount > 0 ? Math.Round(Model.Reviews.Average(r => r.Rating), 1) : 0; }
+                    <span class="material-symbols-outlined text-yellow-400" style="font-variation-settings: 'FILL' 1">star</span>
+                    <span>@avg/5 (@reviewCount)</span>
+                </div>
+            </div>
+
+            <div class="space-y-4">
+                @if ((Model.Reviews?.Count ?? 0) == 0)
+                {
+                    <div class="text-sm text-gray-500">Chưa có đánh giá nào</div>
+                }
+                else
+                {
+                    foreach (var r in Model.Reviews.OrderByDescending(x => x.CreatedAt))
+                    {
+                        <div class="border border-gray-100 dark:border-[#2a4032] rounded-lg p-4">
+                            <div class="flex items-center justify-between mb-1">
+                                <div class="font-bold text-gray-800 dark:text-white">@r.UserName</div>
+                                <div class="text-xs text-gray-500">@r.CreatedAt.ToString("dd/MM/yyyy HH:mm")</div>
+                            </div>
+                            <div class="flex items-center gap-1 mb-2">
+                                @for (int i = 1; i <= 5; i++)
+                                {
+                                    <span class="material-symbols-outlined @(i <= r.Rating ? "text-yellow-400" : "text-gray-300 dark:text-gray-600")" style="font-variation-settings: 'FILL' 1">star</span>
+                                }
+                            </div>
+                            @if (!string.IsNullOrEmpty(r.Comment))
+                            {
+                                <div class="text-sm text-gray-700 dark:text-gray-300">@r.Comment</div>
+                            }
+                            @if ((User?.Identity?.IsAuthenticated ?? false) && string.Equals(User?.Identity?.Name, r.UserName, StringComparison.OrdinalIgnoreCase))
+                            {
+                                <div class="mt-3">
+                                    <button type="button" class="px-3 py-1 rounded-md bg-primary/10 text-primary text-sm font-bold" onclick="toggleEdit(@r.Id)">Chỉnh sửa</button>
+                                </div>
+                                <div id="edit-@r.Id" class="mt-3 hidden">
+                                    <form action="@Url.Action("EditReview", "Home")" method="post" class="space-y-3">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="id" value="@r.Id" />
+                                        <div>
+                                            <div id="edit-stars-@r.Id" class="flex items-center gap-2">
+                                                @for (int i = 1; i <= 5; i++)
+                                                {
+                                                    <label class="cursor-pointer">
+                                                        <input type="radio" name="rating" value="@i" class="hidden" @(i == r.Rating ? "checked" : null) />
+                                                        <span class="material-symbols-outlined text-2xl text-gray-300 hover:text-yellow-400" style="font-variation-settings: 'FILL' 1">star</span>
+                                                    </label>
+                                                }
+                                                <div class="ml-3 text-sm text-gray-700 dark:text-gray-300">Đang chọn: <span id="edit-selected-@r.Id">@r.Rating</span> sao</div>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <textarea name="comment" rows="3" class="w-full rounded-md border-gray-300 dark:border-[#2a4032] bg-white dark:bg-[#0f1f16] text-gray-900 dark:text-white px-3 py-2">@r.Comment</textarea>
+                                        </div>
+                                        <div class="flex items-center gap-2">
+                                            <button type="submit" class="px-3 py-1 rounded-md bg-primary text-white text-sm font-bold">Lưu</button>
+                                            <button type="button" class="px-3 py-1 rounded-md border border-gray-200 dark:border-[#2a4032] text-gray-700 dark:text-gray-300 text-sm" onclick="toggleEdit(@r.Id)">Hủy</button>
+                                        </div>
+                                    </form>
+                                    <script>setupRatingFor('edit-stars-@r.Id', @r.Rating);</script>
+                                </div>
+                            }
+                        </div>
+                    }
+                }
+            </div>
+        </div>
+
+        <div class="rounded-2xl border border-gray-100 dark:border-[#2a4032] p-6 bg-white dark:bg-[#0f1f16]">
+            <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4">Viết đánh giá</h3>
+            @if (User?.Identity?.IsAuthenticated ?? false)
+            {
+                <form asp-action="AddReview" asp-controller="Home" method="post" class="space-y-4">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="productId" value="@Model.Id" />
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Chọn số sao</label>
+                        <div id="rating-stars" class="flex items-center gap-2">
+                            @for (int i = 1; i <= 5; i++)
+                            {
+                                <label class="cursor-pointer">
+                                    <input type="radio" name="rating" value="@i" class="hidden" @(i == 5 ? "checked" : null) />
+                                    <span class="material-symbols-outlined text-2xl text-gray-300 hover:text-yellow-400" style="font-variation-settings: 'FILL' 1">star</span>
+                                </label>
+                            }
+                            <div class="ml-3 text-sm text-gray-700 dark:text-gray-300">Đang chọn: <span id="rating-selected">5</span> sao</div>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Nhận xét</label>
+                        <textarea name="comment" rows="4" class="mt-1 w-full rounded-md border-gray-300 dark:border-[#2a4032] bg-white dark:bg-[#0f1f16] text-gray-900 dark:text-white px-3 py-2"></textarea>
+                    </div>
+                    <button type="submit" class="w-full bg-primary hover:bg-primary-dark text-white font-bold py-2.5 rounded-lg">Gửi đánh giá</button>
+                </form>
+            }
+            else
+            {
+                <div class="text-sm text-gray-700 dark:text-gray-300">
+                    Vui lòng <a asp-controller="Account" asp-action="Login" class="text-primary font-bold hover:underline">đăng nhập</a> để viết đánh giá.
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<script>
+    function incrementQty() {
+        const input = document.getElementById('qty');
+        const max = parseInt(input.getAttribute('max'));
+        if (parseInt(input.value) < max) {
+            input.value = parseInt(input.value) + 1;
+        }
+    }
+    
+    function decrementQty() {
+        const input = document.getElementById('qty');
+        if (parseInt(input.value) > 1) {
+            input.value = parseInt(input.value) - 1;
+        }
+    }
+</script>
+<script>
+    function setupRating() {
+        const container = document.getElementById('rating-stars');
+        if (!container) return;
+        const labels = Array.from(container.querySelectorAll('label'));
+        const inputs = Array.from(container.querySelectorAll('input[name="rating"]'));
+        const selectedSpan = document.getElementById('rating-selected');
+
+        function update(val) {
+            labels.forEach((label, idx) => {
+                const star = label.querySelector('span');
+                if (!star) return;
+                if (idx + 1 <= val) {
+                    star.classList.remove('text-gray-300');
+                    star.classList.remove('dark:text-gray-600');
+                    star.classList.add('text-yellow-400');
+                } else {
+                    star.classList.remove('text-yellow-400');
+                    star.classList.add('text-gray-300');
+                    star.classList.add('dark:text-gray-600');
+                }
+            });
+            if (selectedSpan) selectedSpan.textContent = String(val);
+        }
+
+        const initial = inputs.find(i => i.checked);
+        update(initial ? parseInt(initial.value) : 5);
+
+        inputs.forEach((input, idx) => {
+            input.addEventListener('change', () => update(parseInt(input.value)));
+        });
+
+        labels.forEach((label, idx) => {
+            label.addEventListener('click', () => {
+                const input = label.querySelector('input');
+                if (input) {
+                    input.checked = true;
+                    update(idx + 1);
+                }
+            });
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', setupRating);
+</script>
+<script>
+    function setupRatingFor(containerId, initial) {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+        const labels = Array.from(container.querySelectorAll('label'));
+        const inputs = Array.from(container.querySelectorAll('input[name="rating"]'));
+        const selectedSpan = document.getElementById(containerId.replace('stars', 'selected'));
+        function update(val) {
+            labels.forEach((label, idx) => {
+                const star = label.querySelector('span');
+                if (!star) return;
+                if (idx + 1 <= val) {
+                    star.classList.remove('text-gray-300');
+                    star.classList.remove('dark:text-gray-600');
+                    star.classList.add('text-yellow-400');
+                } else {
+                    star.classList.remove('text-yellow-400');
+                    star.classList.add('text-gray-300');
+                    star.classList.add('dark:text-gray-600');
+                }
+            });
+            if (selectedSpan) selectedSpan.textContent = String(val);
+        }
+        update(initial || 5);
+        inputs.forEach((input, idx) => {
+            input.addEventListener('change', () => update(parseInt(input.value)));
+        });
+        labels.forEach((label, idx) => {
+            label.addEventListener('click', () => {
+                const input = label.querySelector('input');
+                if (input) {
+                    input.checked = true;
+                    update(idx + 1);
+                }
+            });
+        });
+    }
+
+    function toggleEdit(id) {
+        const el = document.getElementById('edit-' + id);
+        if (!el) return;
+        el.classList.toggle('hidden');
+    }
+</script>

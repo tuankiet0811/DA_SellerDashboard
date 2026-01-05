@@ -1,0 +1,54 @@
+@model IEnumerable<SellerDashboard.Models.Product>
+
+<div class="bg-white dark:bg-[#1a2c23] rounded-lg shadow-sm border border-[#e7f3ec] dark:border-[#2a4034] overflow-hidden">
+    <div class="p-6 border-b border-[#e7f3ec] dark:border-[#2a4034] flex justify-between items-center">
+        <div>
+            <h2 class="text-xl font-bold text-text-main dark:text-white">Áp dụng khuyến mãi: @ViewBag.PromotionName</h2>
+            <p class="text-sm text-text-muted">Chọn sản phẩm để áp dụng khuyến mãi này.</p>
+        </div>
+        <button onclick="loadPromotionList()" class="text-text-muted hover:text-text-main">Quay lại danh sách</button>
+    </div>
+    <div class="p-6">
+        <form id="applyPromotionForm" onsubmit="submitApplyPromotion(event)">
+            <input type="hidden" name="promotionId" value="@ViewBag.PromotionId" />
+            
+            <div class="mb-4 flex justify-between items-center">
+                <div class="flex items-center gap-2">
+                    <input type="checkbox" id="selectAll" onchange="toggleSelectAll(this)" class="rounded border-gray-300 text-primary focus:ring-primary" />
+                    <label for="selectAll" class="text-sm font-medium text-text-main dark:text-gray-200">Chọn tất cả</label>
+                </div>
+                <button type="submit" class="px-4 py-2 bg-primary hover:bg-primary-dark text-white rounded-lg text-sm font-bold shadow-lg shadow-primary/25 transition-all">Lưu thay đổi</button>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-h-[60vh] overflow-y-auto pr-2">
+                @foreach (var product in Model)
+                {
+                    bool isLocked = product.PromotionId != null && product.PromotionId != ViewBag.PromotionId && product.Promotion != null && product.Promotion.EndDate >= DateTime.Now;
+                    
+                    <label class="flex items-start gap-3 p-3 rounded-lg border border-gray-100 dark:border-[#2a4034] @(isLocked ? "bg-gray-100 dark:bg-[#102218] opacity-60 cursor-not-allowed" : "hover:bg-gray-50 dark:hover:bg-[#102218] cursor-pointer") transition-colors">
+                        <input type="checkbox" name="productIds" value="@product.Id" @(product.PromotionId == ViewBag.PromotionId ? "checked" : "") @(isLocked ? "disabled" : "") class="mt-1 rounded border-gray-300 text-primary focus:ring-primary product-checkbox" />
+                        <div>
+                            <div class="font-medium text-text-main dark:text-white">@product.Name</div>
+                            <div class="text-xs text-text-muted">Giá: @string.Format(System.Globalization.CultureInfo.GetCultureInfo("vi-VN"), "{0:C0}", product.Price)</div>
+                            @if (isLocked)
+                            {
+                                <div class="text-xs text-red-500 mt-1 font-medium">Đang hoạt động trong: @product.Promotion?.Name</div>
+                            }
+                        </div>
+                    </label>
+                }
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function toggleSelectAll(source) {
+        checkboxes = document.getElementsByClassName('product-checkbox');
+        for(var i=0, n=checkboxes.length;i<n;i++) {
+            if (!checkboxes[i].disabled) {
+                checkboxes[i].checked = source.checked;
+            }
+        }
+    }
+</script>

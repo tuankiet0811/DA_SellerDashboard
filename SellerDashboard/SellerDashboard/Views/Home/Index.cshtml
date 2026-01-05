@@ -1,0 +1,224 @@
+@model SellerDashboard.Models.ProductListViewModel
+@{
+    ViewData["Title"] = "Product Listing";
+}
+
+<!-- Main Layout -->
+<div class="max-w-7xl mx-auto w-full flex-1 flex flex-col md:flex-row gap-8 px-6 py-8">
+    <!-- Sidebar Filters -->
+    <aside class="w-full md:w-64 shrink-0 space-y-8 hidden md:block">
+        <form method="get" id="filterForm">
+            <input type="hidden" name="searchTerm" value="@Model.SearchTerm" />
+            <input type="hidden" name="sortOrder" value="@Model.SortOrder" />
+            <input type="hidden" name="page" value="1" /> <!-- Reset page on filter change -->
+
+            <!-- Breadcrumbs -->
+            <div class="text-sm breadcrumbs pb-4 border-b border-gray-200 dark:border-[#2a4032] mb-6">
+                <ul class="flex items-center gap-2 text-text-sub">
+                    <li><a class="hover:text-primary" asp-action="Index">Home</a></li>
+                    <li>/</li>
+                    <li class="text-text-main dark:text-white font-medium">Products</li>
+                </ul>
+            </div>
+
+            <!-- Filter Group: Categories -->
+            <div class="mb-8">
+                <h3 class="font-bold text-text-main dark:text-white mb-4 flex items-center justify-between">
+                    Categories
+                    <span class="material-symbols-outlined text-gray-400">expand_less</span>
+                </h3>
+                <ul class="space-y-2 text-sm text-gray-600 dark:text-gray-300">
+                    <li class="flex items-center justify-between group cursor-pointer">
+                        <a href="@Url.Action("Index", new { category = "", brand = Model.CurrentBrand, minPrice = Model.MinPrice, maxPrice = Model.MaxPrice, sortOrder = Model.SortOrder, searchTerm = Model.SearchTerm })" 
+                           class="@(string.IsNullOrEmpty(Model.CurrentCategory) ? "text-primary font-bold" : "group-hover:text-primary transition-colors")">
+                            All Categories
+                        </a>
+                    </li>
+                    @foreach (var cat in Model.Categories)
+                    {
+                        <li class="flex items-center justify-between group cursor-pointer">
+                            <a href="@Url.Action("Index", new { category = cat.Key, brand = Model.CurrentBrand, minPrice = Model.MinPrice, maxPrice = Model.MaxPrice, sortOrder = Model.SortOrder, searchTerm = Model.SearchTerm })" 
+                               class="@(Model.CurrentCategory == cat.Key ? "text-primary font-bold" : "group-hover:text-primary transition-colors")">
+                                @cat.Key
+                            </a>
+                            <span class="@(Model.CurrentCategory == cat.Key ? "bg-primary/20 text-text-main" : "bg-gray-100 dark:bg-[#23352a]") text-xs px-2 py-0.5 rounded-full">@cat.Value</span>
+                        </li>
+                    }
+                </ul>
+            </div>
+
+            <!-- Filter Group: Price -->
+            <div class="mb-8">
+                <h3 class="font-bold text-text-main dark:text-white mb-4">Price Range</h3>
+                <div class="px-1">
+                    <div class="flex items-center gap-2 mb-2">
+                        <input type="number" name="minPrice" value="@Model.MinPrice" placeholder="Min" class="w-full px-2 py-1 text-sm border rounded dark:bg-[#1a2e22] dark:border-[#2a4032] dark:text-white" />
+                        <span class="text-gray-400">-</span>
+                        <input type="number" name="maxPrice" value="@Model.MaxPrice" placeholder="Max" class="w-full px-2 py-1 text-sm border rounded dark:bg-[#1a2e22] dark:border-[#2a4032] dark:text-white" />
+                    </div>
+                    <button type="submit" class="w-full bg-primary text-white text-xs font-bold py-1 rounded hover:bg-primary-dark transition-colors">Apply</button>
+                </div>
+            </div>
+
+            <!-- Filter Group: Brand -->
+            <div class="mb-8">
+                <h3 class="font-bold text-text-main dark:text-white mb-4">Brands</h3>
+                <div class="space-y-3">
+                    <label class="flex items-center gap-3 cursor-pointer group">
+                         <a href="@Url.Action("Index", new { category = Model.CurrentCategory, brand = "", minPrice = Model.MinPrice, maxPrice = Model.MaxPrice, sortOrder = Model.SortOrder, searchTerm = Model.SearchTerm })" 
+                           class="@(string.IsNullOrEmpty(Model.CurrentBrand) ? "text-primary font-bold" : "group-hover:text-primary transition-colors") text-sm">
+                            All Brands
+                        </a>
+                    </label>
+                    @foreach (var brand in Model.Brands)
+                    {
+                        <div class="flex items-center justify-between">
+                             <a href="@Url.Action("Index", new { category = Model.CurrentCategory, brand = brand.Key, minPrice = Model.MinPrice, maxPrice = Model.MaxPrice, sortOrder = Model.SortOrder, searchTerm = Model.SearchTerm })" 
+                               class="@(Model.CurrentBrand == brand.Key ? "text-primary font-bold" : "group-hover:text-primary transition-colors") text-sm text-gray-700 dark:text-gray-300">
+                                @brand.Key
+                            </a>
+                            <span class="text-xs text-gray-500">(@brand.Value)</span>
+                        </div>
+                    }
+                </div>
+            </div>
+        </form>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 min-w-0">
+        <!-- Sorting & Toolbar -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+            <div class="text-sm text-gray-600 dark:text-gray-400">
+                @if (Model.TotalItems > 0)
+                {
+                    <span>Showing <span class="font-bold text-text-main dark:text-white">@((Model.CurrentPage - 1) * 9 + 1)-@((Model.CurrentPage - 1) * 9 + Model.Products.Count())</span> of <span class="font-bold text-text-main dark:text-white">@Model.TotalItems</span> results</span>
+                }
+                else
+                {
+                    <span>Showing 0 results</span>
+                }
+                @if(!string.IsNullOrEmpty(Model.CurrentCategory)) { <span> in "@Model.CurrentCategory"</span>; }
+            </div>
+            <div class="flex items-center gap-3">
+                <div class="flex items-center gap-2">
+                    <span class="text-sm text-gray-500 hidden sm:block">Sort by:</span>
+                    <div class="relative">
+                        <select onchange="location.href=this.value" class="appearance-none bg-white dark:bg-[#1a2e22] border border-gray-200 dark:border-[#2a4032] text-sm font-medium pl-3 pr-8 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20">
+                            <option value="@Url.Action("Index", new { category = Model.CurrentCategory, brand = Model.CurrentBrand, minPrice = Model.MinPrice, maxPrice = Model.MaxPrice, sortOrder = "newest", searchTerm = Model.SearchTerm })" selected="@(Model.SortOrder == "newest" || string.IsNullOrEmpty(Model.SortOrder))">Newest Arrivals</option>
+                            <option value="@Url.Action("Index", new { category = Model.CurrentCategory, brand = Model.CurrentBrand, minPrice = Model.MinPrice, maxPrice = Model.MaxPrice, sortOrder = "price_asc", searchTerm = Model.SearchTerm })" selected="@(Model.SortOrder == "price_asc")">Price: Low to High</option>
+                            <option value="@Url.Action("Index", new { category = Model.CurrentCategory, brand = Model.CurrentBrand, minPrice = Model.MinPrice, maxPrice = Model.MaxPrice, sortOrder = "price_desc", searchTerm = Model.SearchTerm })" selected="@(Model.SortOrder == "price_desc")">Price: High to Low</option>
+                        </select>
+                        <span class="material-symbols-outlined absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 text-lg pointer-events-none">expand_more</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Product Grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            @if (Model.Products != null && Model.Products.Any())
+            {
+                foreach (var product in Model.Products)
+                {
+                    <div class="group bg-white dark:bg-[#1a2e22] rounded-2xl border border-gray-100 dark:border-[#2a4032] overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+                        <div class="relative aspect-square bg-[#f6f8f7] dark:bg-[#23352a] overflow-hidden">
+                            <a href="@Url.Action("Details", new { id = product.Id })" class="block w-full h-full">
+                                <img alt="@product.Name" class="object-cover w-full h-full mix-blend-multiply dark:mix-blend-normal group-hover:scale-105 transition-transform duration-500" src="@(string.IsNullOrEmpty(product.ImageUrl) ? "https://via.placeholder.com/300" : product.ImageUrl)" />
+                            </a>
+                            @if(DateTime.Now < product.CreatedAt.AddDays(7)) 
+                            {
+                                 <div class="absolute top-3 left-3 pointer-events-none flex flex-col gap-1">
+                                    <span class="bg-primary text-text-main text-xs font-bold px-2.5 py-1 rounded-full w-fit">New Arrival</span>
+                                    @if (product.DiscountedPrice < product.Price)
+                                    {
+                                        <span class="bg-red-600 text-white text-xs font-bold px-2.5 py-1 rounded-full w-fit">-@product.Promotion?.DiscountPercent%</span>
+                                    }
+                                </div>
+                            }
+                            else if (product.DiscountedPrice < product.Price)
+                            {
+                                <div class="absolute top-3 left-3 pointer-events-none">
+                                    <span class="bg-red-600 text-white text-xs font-bold px-2.5 py-1 rounded-full">-@product.Promotion?.DiscountPercent%</span>
+                                </div>
+                            }
+                            <button class="absolute top-3 right-3 size-8 rounded-full bg-white dark:bg-[#1a2e22] flex items-center justify-center text-gray-400 hover:text-red-500 transition-colors shadow-sm opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 duration-300">
+                                <span class="material-symbols-outlined text-[20px]">favorite</span>
+                            </button>
+                            <!-- Quick Action Overlay -->
+                            <div class="absolute bottom-0 left-0 right-0 p-4 translate-y-full group-hover:translate-y-0 transition-transform duration-300 bg-gradient-to-t from-black/50 to-transparent pointer-events-none">
+                                <button onclick="addToCart(@product.Id)" class="w-full bg-white dark:bg-[#1a2e22] text-text-main dark:text-white font-semibold py-2 rounded-lg shadow-lg hover:bg-gray-50 dark:hover:bg-[#23352a] transition-colors flex items-center justify-center gap-2 pointer-events-auto">
+                                    <span class="material-symbols-outlined text-[20px]">shopping_cart</span>
+                                    Add to Cart
+                                </button>
+                            </div>
+                        </div>
+                        <div class="p-4">
+                            <div class="flex items-center justify-between mb-1">
+                                <p class="text-xs font-semibold text-primary uppercase tracking-wider">@(product.Brand ?? "Generic")</p>
+                                <div class="flex items-center gap-1 text-xs font-medium text-gray-500 dark:text-gray-400">
+                                    <span class="material-symbols-outlined text-yellow-400 text-[16px] fill-current" style="font-variation-settings: 'FILL' 1">star</span>
+                                    5.0
+                                </div>
+                            </div>
+                            <h3 class="font-bold text-text-main dark:text-white mb-1 truncate">
+                                <a href="@Url.Action("Details", new { id = product.Id })" class="hover:text-primary transition-colors">@product.Name</a>
+                            </h3>
+                            <p class="text-sm text-gray-500 dark:text-gray-400 line-clamp-2 mb-3">@product.Description</p>
+                            <div class="flex items-end justify-between">
+                                <div>
+                                    @if (product.DiscountedPrice < product.Price)
+                                    {
+                                        <div class="flex flex-col">
+                                            <span class="text-xs text-gray-500 line-through">@string.Format(System.Globalization.CultureInfo.GetCultureInfo("vi-VN"), "{0:C0}", product.Price)</span>
+                                            <span class="text-lg font-bold text-red-600">@string.Format(System.Globalization.CultureInfo.GetCultureInfo("vi-VN"), "{0:C0}", product.DiscountedPrice)</span>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-lg font-bold text-text-main dark:text-white">@string.Format(System.Globalization.CultureInfo.GetCultureInfo("vi-VN"), "{0:C0}", product.Price)</span>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="col-span-full text-center py-12">
+                    <p class="text-gray-500 dark:text-gray-400">No products found matching your filters.</p>
+                    <a href="@Url.Action("Index")" class="text-primary hover:underline mt-2 inline-block">Clear all filters</a>
+                </div>
+            }
+        </div>
+
+        <!-- Pagination -->
+        @if (Model.TotalPages > 1)
+        {
+            <div class="mt-12 flex items-center justify-center gap-2">
+                @if (Model.CurrentPage > 1)
+                {
+                    <a href="@Url.Action("Index", new { page = Model.CurrentPage - 1, category = Model.CurrentCategory, brand = Model.CurrentBrand, minPrice = Model.MinPrice, maxPrice = Model.MaxPrice, sortOrder = Model.SortOrder, searchTerm = Model.SearchTerm })" class="flex items-center justify-center size-10 rounded-lg border border-gray-200 dark:border-[#2a4032] text-gray-500 hover:bg-gray-50 dark:hover:bg-[#1a2e22] transition-colors">
+                        <span class="material-symbols-outlined">chevron_left</span>
+                    </a>
+                }
+                
+                @for (int i = 1; i <= Model.TotalPages; i++)
+                {
+                    <a href="@Url.Action("Index", new { page = i, category = Model.CurrentCategory, brand = Model.CurrentBrand, minPrice = Model.MinPrice, maxPrice = Model.MaxPrice, sortOrder = Model.SortOrder, searchTerm = Model.SearchTerm })" 
+                       class="flex items-center justify-center size-10 rounded-lg @(i == Model.CurrentPage ? "bg-primary text-white font-bold shadow-lg shadow-primary/30" : "border border-gray-200 dark:border-[#2a4032] text-text-main dark:text-white font-medium hover:bg-gray-50 dark:hover:bg-[#1a2e22] transition-colors")">
+                        @i
+                    </a>
+                }
+
+                @if (Model.CurrentPage < Model.TotalPages)
+                {
+                    <a href="@Url.Action("Index", new { page = Model.CurrentPage + 1, category = Model.CurrentCategory, brand = Model.CurrentBrand, minPrice = Model.MinPrice, maxPrice = Model.MaxPrice, sortOrder = Model.SortOrder, searchTerm = Model.SearchTerm })" class="flex items-center justify-center size-10 rounded-lg border border-gray-200 dark:border-[#2a4032] text-gray-500 hover:bg-gray-50 dark:hover:bg-[#1a2e22] transition-colors">
+                        <span class="material-symbols-outlined">chevron_right</span>
+                    </a>
+                }
+            </div>
+        }
+    </main>
+</div>

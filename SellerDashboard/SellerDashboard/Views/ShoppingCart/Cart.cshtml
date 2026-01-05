@@ -1,0 +1,99 @@
+@model List<SellerDashboard.Models.CartItem>
+
+@{
+    ViewData["Title"] = "Shopping Cart";
+}
+
+<div class="max-w-7xl mx-auto px-6 py-12">
+    <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-8">Shopping Cart</h1>
+
+    @if (Model.Any())
+    {
+        <div class="flex flex-col lg:flex-row gap-8">
+            <!-- Cart Items -->
+            <div class="flex-1 bg-white dark:bg-[#1a2e22] rounded-2xl shadow-sm border border-gray-100 dark:border-[#2a4032] overflow-hidden">
+                <div class="p-6 space-y-6">
+                    @foreach (var item in Model)
+                    {
+                        <div class="flex gap-4 py-4 border-b border-gray-100 dark:border-[#2a4032] last:border-0">
+                            <div class="size-24 bg-gray-50 dark:bg-[#23352a] rounded-lg overflow-hidden shrink-0">
+                                <img src="@(string.IsNullOrEmpty(item.ImageUrl) ? "https://via.placeholder.com/150" : item.ImageUrl)" alt="@item.ProductName" class="w-full h-full object-cover" />
+                            </div>
+                            <div class="flex-1 flex flex-col justify-between">
+                                <div class="flex justify-between items-start">
+                                    <div>
+                                        <h3 class="font-bold text-gray-900 dark:text-white">@item.ProductName</h3>
+                                        <p class="text-sm text-gray-500">Đơn giá: @string.Format(System.Globalization.CultureInfo.GetCultureInfo("vi-VN"), "{0:C0}", item.Price)</p>
+                                    </div>
+                                    <form asp-controller="ShoppingCart" asp-action="RemoveFromCart" method="post">
+                                        <input type="hidden" name="productId" value="@item.ProductId" />
+                                        <button type="submit" class="text-gray-400 hover:text-red-500 transition-colors">
+                                            <span class="material-symbols-outlined">delete</span>
+                                        </button>
+                                    </form>
+                                </div>
+                                <div class="flex justify-between items-center mt-4">
+                                    <form asp-controller="ShoppingCart" asp-action="UpdateQuantity" method="post" class="flex items-center border border-gray-200 dark:border-[#2a4032] rounded-lg">
+                                        <input type="hidden" name="productId" value="@item.ProductId" />
+                                        <button type="submit" name="quantity" value="@(item.Quantity - 1)" class="px-3 py-1 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-[#2a4032] transition-colors">-</button>
+                                        <span class="px-2 text-sm font-medium text-gray-900 dark:text-white">@item.Quantity</span>
+                                        <button type="submit" name="quantity" value="@(item.Quantity + 1)" class="px-3 py-1 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-[#2a4032] transition-colors">+</button>
+                                    </form>
+                                    <span class="font-bold text-lg text-primary">@string.Format(System.Globalization.CultureInfo.GetCultureInfo("vi-VN"), "{0:C0}", item.Total)</span>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Order Summary -->
+            <div class="w-full lg:w-96 shrink-0">
+                <div class="bg-white dark:bg-[#1a2e22] rounded-2xl shadow-sm border border-gray-100 dark:border-[#2a4032] p-6 sticky top-24">
+                    <h2 class="font-bold text-lg text-gray-900 dark:text-white mb-6">Order Summary</h2>
+                    
+                    <div class="space-y-3 text-sm mb-6">
+                        <div class="flex justify-between text-gray-600 dark:text-gray-400">
+                            <span>Subtotal</span>
+                            <span>@string.Format(System.Globalization.CultureInfo.GetCultureInfo("vi-VN"), "{0:C0}", Model.Sum(i => i.Total))</span>
+                        </div>
+                        <div class="flex justify-between text-gray-600 dark:text-gray-400">
+                            <span>Shipping</span>
+                            <span>Free</span>
+                        </div>
+                        <div class="flex justify-between text-gray-600 dark:text-gray-400">
+                            <span>Tax</span>
+                            <span>@string.Format(System.Globalization.CultureInfo.GetCultureInfo("vi-VN"), "{0:C0}", 0)</span>
+                        </div>
+                        <div class="border-t border-gray-100 dark:border-[#2a4032] pt-3 flex justify-between font-bold text-lg text-gray-900 dark:text-white">
+                            <span>Total</span>
+                            <span>@string.Format(System.Globalization.CultureInfo.GetCultureInfo("vi-VN"), "{0:C0}", Model.Sum(i => i.Total))</span>
+                        </div>
+                    </div>
+
+                    <a asp-controller="ShoppingCart" asp-action="Checkout" class="w-full bg-primary hover:bg-primary-dark text-white font-bold py-3 rounded-lg shadow-lg shadow-primary/30 transition-all active:scale-95 flex items-center justify-center gap-2">
+                        Checkout
+                        <span class="material-symbols-outlined">arrow_forward</span>
+                    </a>
+                    
+                    <a asp-controller="Home" asp-action="Index" class="block text-center mt-4 text-sm text-gray-500 hover:text-primary transition-colors">
+                        Continue Shopping
+                    </a>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="text-center py-24 bg-white dark:bg-[#1a2e22] rounded-2xl border border-gray-100 dark:border-[#2a4032]">
+            <div class="inline-flex items-center justify-center size-20 bg-gray-50 dark:bg-[#23352a] rounded-full mb-6">
+                <span class="material-symbols-outlined text-4xl text-gray-300">shopping_cart_off</span>
+            </div>
+            <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-2">Your cart is empty</h2>
+            <p class="text-gray-500 mb-8">Looks like you haven't added anything to your cart yet.</p>
+            <a asp-controller="Home" asp-action="Index" class="inline-flex items-center gap-2 bg-primary hover:bg-primary-dark text-white font-bold py-3 px-8 rounded-lg transition-colors">
+                Start Shopping
+            </a>
+        </div>
+    }
+</div>

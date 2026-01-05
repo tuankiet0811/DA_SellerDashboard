@@ -1,0 +1,81 @@
+@model SellerDashboard.Models.Order
+
+@{
+    ViewData["Title"] = "Return Order";
+}
+
+<div class="max-w-7xl mx-auto px-6 py-8">
+    <div class="mb-8">
+        <div class="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-2">
+            <a asp-action="Index" class="hover:text-primary transition-colors">My Orders</a>
+            <span class="material-symbols-outlined text-base">chevron_right</span>
+            <a asp-action="Details" asp-route-id="@Model.Id" class="hover:text-primary transition-colors">Order #@Model.Id</a>
+            <span class="material-symbols-outlined text-base">chevron_right</span>
+            <span>Return</span>
+        </div>
+        <h1 class="text-3xl font-bold tracking-tight text-[#0d1b13] dark:text-white">Return Order</h1>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div class="lg:col-span-2 space-y-6">
+            <div class="bg-white dark:bg-[#1a2e22] rounded-2xl shadow-sm border border-gray-100 dark:border-[#2a4032] p-6">
+                <h2 class="font-bold text-[#0d1b13] dark:text-white mb-4">Items</h2>
+                <div class="divide-y divide-gray-100 dark:divide-[#2a4032]">
+                    @foreach (var detail in Model.OrderDetails)
+                    {
+                        <div class="py-4 flex items-center gap-4">
+                            <div class="size-16 rounded-lg bg-gray-100 dark:bg-gray-800 overflow-hidden shrink-0">
+                                <img src="@(string.IsNullOrEmpty(detail.Product?.ImageUrl) ? "https://via.placeholder.com/150" : detail.Product.ImageUrl)" alt="@detail.ProductName" class="w-full h-full object-cover" />
+                            </div>
+                            <div class="flex-1">
+                                <div class="font-medium text-[#0d1b13] dark:text-white">@detail.ProductName</div>
+                                <div class="text-xs text-gray-500 dark:text-gray-400">Quantity: @detail.Quantity</div>
+                            </div>
+                            <div class="text-sm font-medium text-[#0d1b13] dark:text-white">@string.Format(System.Globalization.CultureInfo.GetCultureInfo("vi-VN"), "{0:C0}", detail.Price * detail.Quantity)</div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <div class="bg-white dark:bg-[#1a2e22] rounded-2xl shadow-sm border border-gray-100 dark:border-[#2a4032] p-6">
+                <h2 class="font-bold text-[#0d1b13] dark:text-white mb-4">Return Request</h2>
+                <form asp-action="RequestReturn" asp-route-id="@Model.Id" method="post" class="space-y-4">
+                    <label class="block">
+                        <span class="text-sm font-medium text-[#0d1b13] dark:text-gray-200">Reason</span>
+                        <textarea name="reason" rows="4" class="mt-1 block w-full rounded-lg border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-[#0d1b13] dark:text-white focus:border-primary focus:ring-primary px-4 py-3"></textarea>
+                    </label>
+                    <div class="flex items-center gap-3">
+                        <a asp-action="Details" asp-route-id="@Model.Id" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-200 dark:border-[#2a4032] text-text-main dark:text-white hover:bg-gray-50 dark:hover:bg-[#23352a]">
+                            <span class="material-symbols-outlined">chevron_left</span>
+                            Back
+                        </a>
+                        <button type="submit" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-white font-bold">
+                            <span class="material-symbols-outlined">keyboard_return</span>
+                            Submit Return
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="space-y-6">
+            <div class="bg-white dark:bg-[#1a2e22] rounded-2xl shadow-sm border border-gray-100 dark:border-[#2a4032] p-6">
+                <h2 class="font-bold text-[#0d1b13] dark:text-white mb-4">Order Summary</h2>
+                <div class="space-y-3 text-sm">
+                    <div class="flex justify-between text-gray-600 dark:text-gray-300">
+                        <span>Subtotal</span>
+                        <span>@string.Format(System.Globalization.CultureInfo.GetCultureInfo("vi-VN"), "{0:C0}", Model.TotalAmount)</span>
+                    </div>
+                    <div class="flex justify-between text-gray-600 dark:text-gray-300">
+                        <span>Shipping</span>
+                        <span>Free</span>
+                    </div>
+                    <div class="border-t border-gray-100 dark:border-[#2a4032] pt-3 flex justify-between font-bold text-[#0d1b13] dark:text-white text-base">
+                        <span>Total</span>
+                        <span>@string.Format(System.Globalization.CultureInfo.GetCultureInfo("vi-VN"), "{0:C0}", Model.TotalAmount)</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

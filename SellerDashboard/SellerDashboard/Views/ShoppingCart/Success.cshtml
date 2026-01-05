@@ -1,0 +1,36 @@
+@model int
+
+<div class="max-w-3xl mx-auto px-6 py-16">
+    <div class="bg-white dark:bg-[#1a2e22] rounded-2xl border border-gray-100 dark:border-[#2a4032] shadow-sm p-8 text-center">
+        <div class="mx-auto mb-6 size-16 rounded-full bg-green-100 text-green-600 flex items-center justify-center">
+            <span class="material-symbols-outlined">check_circle</span>
+        </div>
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Đặt hàng thành công</h1>
+        <p class="mt-2 text-gray-600 dark:text-gray-300">Cảm ơn bạn đã đặt hàng tại cửa hàng của chúng tôi.</p>
+
+        <div class="mt-6 inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-50 dark:bg-[#23352a] border border-gray-100 dark:border-[#2a4032]">
+            <span class="text-sm text-gray-500">Mã đơn hàng</span>
+            <span class="font-semibold text-gray-900 dark:text-white">#@Model</span>
+        </div>
+
+        <div class="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <a asp-controller="Home" asp-action="Index" class="inline-flex items-center justify-center gap-2 bg-primary hover:bg-green-400 text-background-dark font-bold py-3 px-6 rounded-lg transition-colors">
+                Về trang chủ
+                <span class="material-symbols-outlined">home</span>
+            </a>
+            <a asp-controller="Order" asp-action="Details" asp-route-id="@Model" class="inline-flex items-center justify-center gap-2 border border-gray-200 dark:border-[#2a4032] text-text-main dark:text-white hover:bg-gray-50 dark:hover:bg-[#23352a] font-bold py-3 px-6 rounded-lg transition-colors">
+                Xem đơn hàng
+                <span class="material-symbols-outlined">receipt_long</span>
+            </a>
+            <a asp-controller="Order" asp-action="Index" class="inline-flex items-center justify-center gap-2 border border-gray-200 dark:border-[#2a4032] text-text-main dark:text-white hover:bg-gray-50 dark:hover:bg-[#23352a] font-bold py-3 px-6 rounded-lg transition-colors">
+                My Orders
+                <span class="material-symbols-outlined">list_alt</span>
+            </a>
+        </div>
+
+        <p class="mt-6 text-xs text-gray-500 flex items-center justify-center gap-1">
+            <span class="material-symbols-outlined text-gray-400" style="font-size: 14px;">lock</span>
+            Thông tin của bạn được bảo mật an toàn
+        </p>
+    </div>
+</div>

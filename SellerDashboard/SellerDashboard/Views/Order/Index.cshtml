@@ -1,0 +1,70 @@
+@model IEnumerable<SellerDashboard.Models.Order>
+
+@{
+    ViewData["Title"] = "My Orders";
+}
+
+<div class="max-w-7xl mx-auto px-6 py-8">
+    <div class="flex items-center justify-between mb-8">
+        <h1 class="text-3xl font-bold tracking-tight text-[#0d1b13] dark:text-white">My Orders</h1>
+        <a asp-controller="Home" asp-action="Index" class="text-primary hover:text-green-600 font-medium">Continue Shopping</a>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="bg-white dark:bg-[#1a2e22] rounded-2xl shadow-sm p-12 text-center border border-gray-100 dark:border-[#2a4032]">
+            <span class="material-symbols-outlined text-6xl text-gray-300 dark:text-gray-600 mb-4">shopping_bag</span>
+            <h2 class="text-xl font-bold text-[#0d1b13] dark:text-white mb-2">No orders yet</h2>
+            <p class="text-gray-500 dark:text-gray-400 mb-6">You haven't placed any orders yet.</p>
+            <a asp-controller="Home" asp-action="Index" class="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-lg text-background-dark bg-primary hover:bg-green-400 transition-colors shadow-sm">
+                Start Shopping
+            </a>
+        </div>
+    }
+    else
+    {
+        <div class="bg-white dark:bg-[#1a2e22] rounded-2xl shadow-sm border border-gray-100 dark:border-[#2a4032] overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-sm">
+                    <thead class="bg-gray-50 dark:bg-[#23352a] text-xs uppercase text-gray-500 dark:text-gray-400">
+                        <tr>
+                            <th class="px-6 py-4 font-semibold">Order ID</th>
+                            <th class="px-6 py-4 font-semibold">Date</th>
+                            <th class="px-6 py-4 font-semibold">Total</th>
+                            <th class="px-6 py-4 font-semibold">Payment Status</th>
+                            <th class="px-6 py-4 font-semibold">Status</th>
+                            <th class="px-6 py-4 font-semibold text-right">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100 dark:divide-[#2a4032]">
+                        @foreach (var item in Model)
+                        {
+                            <tr class="hover:bg-gray-50 dark:hover:bg-[#23352a]/50 transition-colors">
+                                <td class="px-6 py-4 font-medium text-[#0d1b13] dark:text-white">#@item.Id</td>
+                                <td class="px-6 py-4 text-gray-600 dark:text-gray-300">@item.OrderDate.ToString("MMM dd, yyyy")</td>
+                                <td class="px-6 py-4 font-medium text-[#0d1b13] dark:text-white">@string.Format(System.Globalization.CultureInfo.GetCultureInfo("vi-VN"), "{0:C0}", item.TotalAmount)</td>
+                                <td class="px-6 py-4">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                                        @(item.PaymentStatus == "Paid" ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400" : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400")">
+                                        @item.PaymentStatus
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                                        @(item.Status == "Completed" ? "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400" : 
+                                          item.Status == "Cancelled" ? "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400" :
+                                          "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300")">
+                                        @item.Status
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 text-right">
+                                    <a asp-action="Details" asp-route-id="@item.Id" class="text-primary hover:text-green-600 font-medium hover:underline">View Details</a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+</div>

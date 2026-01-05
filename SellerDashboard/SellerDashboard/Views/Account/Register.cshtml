@@ -1,0 +1,40 @@
+@model SellerDashboard.ViewModels.RegisterViewModel
+
+@{
+    ViewData["Title"] = "Đăng ký";
+}
+
+<div class="min-h-[60vh] flex items-center justify-center px-4">
+    <div class="w-full max-w-md bg-white dark:bg-[#1a2c23] rounded-xl shadow-lg border border-gray-100 dark:border-[#2a4034] p-6 sm:p-8">
+        <div class="text-center mb-6">
+            <h1 class="text-2xl font-bold text-text-main dark:text-white">@ViewData["Title"]</h1>
+            <p class="text-sm text-[#4c9a6c]">Tạo tài khoản để bắt đầu mua sắm</p>
+        </div>
+        <form asp-action="Register" method="post" class="space-y-5">
+            <div asp-validation-summary="ModelOnly" class="text-red-500 text-sm"></div>
+            <label class="block">
+                <span class="text-sm font-medium text-text-main dark:text-gray-200">Email</span>
+                <input asp-for="Email" class="mt-1 block w-full rounded-lg border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-text-main dark:text-white focus:border-primary focus:ring-primary py-3 px-4 shadow-sm" />
+                <span asp-validation-for="Email" class="text-red-500 text-xs mt-1"></span>
+            </label>
+            <label class="block">
+                <span class="text-sm font-medium text-text-main dark:text-gray-200">Mật khẩu</span>
+                <input asp-for="Password" class="mt-1 block w-full rounded-lg border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-text-main dark:text-white focus:border-primary focus:ring-primary py-3 px-4 shadow-sm" />
+                <span asp-validation-for="Password" class="text-red-500 text-xs mt-1"></span>
+            </label>
+            <label class="block">
+                <span class="text-sm font-medium text-text-main dark:text-gray-200">Xác nhận mật khẩu</span>
+                <input asp-for="ConfirmPassword" class="mt-1 block w-full rounded-lg border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-text-main dark:text-white focus:border-primary focus:ring-primary py-3 px-4 shadow-sm" />
+                <span asp-validation-for="ConfirmPassword" class="text-red-500 text-xs mt-1"></span>
+            </label>
+            <button type="submit" class="w-full inline-flex justify-center items-center gap-2 rounded-lg bg-primary text-white font-semibold py-3 hover:brightness-90 transition">Đăng ký</button>
+        </form>
+        <div class="mt-6 text-center">
+            <p class="text-sm text-text-main dark:text-gray-300">Đã có tài khoản? <a asp-action="Login" class="text-[#4c9a6c] hover:underline">Đăng nhập ngay</a></p>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

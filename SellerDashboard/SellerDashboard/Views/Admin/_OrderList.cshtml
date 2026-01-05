@@ -1,0 +1,79 @@
+@model IEnumerable<SellerDashboard.Models.Order>
+
+<div class="bg-white dark:bg-[#1a2c23] rounded-lg shadow-sm border border-[#e7f3ec] dark:border-[#2a4034] overflow-hidden">
+    <div class="p-6 border-b border-[#e7f3ec] dark:border-[#2a4034] flex justify-between items-center">
+        <h2 class="text-xl font-bold text-text-main dark:text-white">Đơn hàng</h2>
+    </div>
+    <div class="overflow-x-auto">
+        <table class="w-full text-left text-sm text-text-muted dark:text-gray-400">
+            <thead class="bg-[#f6f8f7] dark:bg-[#102218] text-xs uppercase text-text-main dark:text-white font-semibold">
+                <tr>
+                    <th scope="col" class="px-6 py-3">Mã đơn</th>
+                    <th scope="col" class="px-6 py-3">Khách hàng</th>
+                    <th scope="col" class="px-6 py-3">Tổng tiền</th>
+                    <th scope="col" class="px-6 py-3">Trạng thái</th>
+                    <th scope="col" class="px-6 py-3">Trả hàng</th>
+                    <th scope="col" class="px-6 py-3">Thanh toán</th>
+                    <th scope="col" class="px-6 py-3">Ngày</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-[#e7f3ec] dark:divide-[#2a4034]">
+                @foreach (var item in Model)
+                {
+                    <tr class="hover:bg-[#f6f8f7] dark:hover:bg-[#102218] transition-colors">
+                        <td class="px-6 py-4 font-medium text-text-main dark:text-white">#@item.Id</td>
+                        <td class="px-6 py-4">
+                            <div class="font-medium text-text-main dark:text-white">@item.FullName</div>
+                            <div class="text-xs text-text-muted">@item.Email</div>
+                            @if(item.Status == "ReturnRequested" && !string.IsNullOrEmpty(item.TransactionId)) {
+                                <div class="text-xs text-red-600 mt-1">Lý do: @item.TransactionId</div>
+                            }
+                        </td>
+                        <td class="px-6 py-4 font-medium text-text-main dark:text-white">@string.Format(System.Globalization.CultureInfo.GetCultureInfo("vi-VN"), "{0:C0}", item.TotalAmount)</td>
+                        <td class="px-6 py-4">
+                            @if (item.PaymentStatus == "Refunded")
+                            {
+                                <span class="text-xs text-gray-400">—</span>
+                            }
+                            else
+                            {
+                                <select onchange="updateOrderStatus(@item.Id, this.value)" class="rounded-md border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-text-main dark:text-white shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 text-sm py-1 px-2">
+                                    <option value="Pending" selected="@(item.Status == "Pending")">Chờ xử lý</option>
+                                    <option value="Processing" selected="@(item.Status == "Processing")">Đang xử lý</option>
+                                    <option value="Shipped" selected="@(item.Status == "Shipped")">Đã gửi</option>
+                                    <option value="Delivered" selected="@(item.Status == "Delivered")">Đã giao</option>
+                                    <option value="Completed" selected="@(item.Status == "Completed")">Hoàn thành</option>
+                                    <option value="Cancelled" selected="@(item.Status == "Cancelled")">Đã hủy</option>
+                                </select>
+                            }
+                        </td>
+                        <td class="px-6 py-4">
+                            @if (item.Status == "ReturnRequested")
+                            {
+                                <div class="flex items-center gap-2">
+                                    <button onclick="approveReturn(@item.Id, true)" class="px-2 py-1 text-xs rounded-md bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">Duyệt</button>
+                                    <button onclick="approveReturn(@item.Id, false)" class="px-2 py-1 text-xs rounded-md bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400">Từ chối</button>
+                                </div>
+                            }
+                            else if (item.Status == "Returned")
+                            {
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400">Đã trả hàng</span>
+                            }
+                            else
+                            {
+                                <span class="text-xs text-gray-400">—</span>
+                            }
+                        </td>
+                        <td class="px-6 py-4">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold
+                                @(item.PaymentStatus == "Paid" ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400" : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400")">
+                                @item.PaymentStatus
+                            </span>
+                        </td>
+                        <td class="px-6 py-4">@item.OrderDate.ToString("dd/MM/yyyy")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
